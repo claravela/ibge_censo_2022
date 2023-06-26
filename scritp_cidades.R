@@ -1,3 +1,8 @@
+# Análise dos dados do Censo 2020, divulgados em junho de 2023
+# O Objetivo é ver como as populações das cidades evoluíram entre 2020 e 2020
+# Apontar quantas cidades encolheram, em quais estados isso aconteceu mais e o top 5 destas cidades
+
+
 # Importando os pacotes
 library(readxl)
 library(tidyverse)
