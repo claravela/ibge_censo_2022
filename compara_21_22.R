@@ -62,7 +62,60 @@ censo_22_var %>%
             mínimo = min(var_pop_per),
             máximo = max(var_pop_per))
 
+# Calcular defasagem entre as bases
+
+pop21 <- sum(censo_22_var$pop_2021)
+pop22 <- sum(censo_22_var$pop_2022)
+
+dif <- pop21 - pop22 #diferença absoluta entre estimativa e censo
+(dif*100)/pop21 #diferença proporcional entre estimativa e censo
+
 # Ver cidades em que a variação é maior que - 100 mil pessoas
 
-censo_22_var %>% 
+grandes_difs <- censo_22_var %>% 
   filter(var_pop <= -100000)
+view(grandes_difs)
+
+var_gran <- sum(grandes_difs$var_pop) #soma das variações destas cidades
+
+(var_gran*100)/dif #proporção destas variações diante da defasagem total
+
+# Quantificar cidades que tiveram queda e tiveram alta
+
+censo_22_var %>% count(var_pop < 0)
+censo_22_var %>% count(var_pop > 0)
+
+#Analisar grupos de cidades que estavam infladas ou não
+
+muni_menos <- censo_22_var %>% filter(var_pop < 0) #cidades em que a estimativa estava maior que o censo
+muni_mais <- censo_22_var %>% filter(var_pop > 0) #cidades em que a estimativa estava menor que o censo
+
+muni_menos %>% summarise(média = mean(pop_2022),
+                         mediana = median(pop_2022),
+                         desv_pad = sd(pop_2022),
+                         mínimo = min(pop_2022),
+                         máximo = max(pop_2022))
+
+muni_mais %>% summarise(média = mean(pop_2022),
+                         mediana = median(pop_2022),
+                         desv_pad = sd(pop_2022),
+                         mínimo = min(pop_2022),
+                         máximo = max(pop_2022))
+
+# Ver cidades por UFs
+
+muni_uf <- censo_22_var %>% count(uf) # quantidade de cidade por uf nacional
+
+muni_menos_uf <- muni_menos %>% 
+  count(uf)
+
+muni_menos_uf <- left_join(muni_menos_uf, muni_uf,
+                          by = "uf")
+
+muni_menos_uf <- muni_menos_uf %>%
+  rename(cidades_infladas = 2,
+         cidades_total = 3) %>%
+  mutate(cidades_infladas_perc = cidades_infladas * 100 / cidades_total)
+
+muni_mais_uf <- muni_mais %>% 
+  count(uf)
